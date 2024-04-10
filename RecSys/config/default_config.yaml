@@ -1,0 +1,22 @@
+# Default config
+name: "default_config"
+
+# Dataset
+dataset: tomplay
+edge_weighting: ones
+add_edges: add_nothing
+
+# Model type
+model: "LightGCN_simple"
+embedding_type: "IdEmbedding"
+embedding_dim: 64
+num_layers: 3
+dropout: 0.0
+
+# Training parameters
+loss: BPR
+epochs: 800
+lr: 0.001
+batch_size: 1024
+weight_decay: 0.00001
+lr_decay: 0.95

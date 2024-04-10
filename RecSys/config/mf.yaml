@@ -1,0 +1,16 @@
+# Default config
+name: "MatrixFactorization"
+
+# Model type
+model: "MF"
+embedding_type: "IdEmbedding"
+embedding_dim: 256
+
+# Training parameters
+loss: CE
+nb_neg_sampling: 4
+epochs: 200
+lr: 0.0001
+batch_size: 512
+weight_decay: 0
+lr_decay: 0.99

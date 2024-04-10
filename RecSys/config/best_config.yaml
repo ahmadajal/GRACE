@@ -1,0 +1,25 @@
+name: lightgcn_1_layers
+
+# Dataset split
+dataset: simple
+
+# Model
+model: LightGCN_simple
+embedding_type: IdEmbeddingPlusNameEmbedding
+embedding_dim: 512
+num_layers: 1
+
+# Training hyperparameters
+loss: BPR
+lr: 0.0001
+epochs: 250
+batch_size: 1024
+lr_decay: 0.95
+weight_decay: 0
+
+# Graph preprocessing
+add_edges: add_nothing
+edge_weighting: exp_time_since_last_inter
+edge_weighting_gamma: 2
+
+seed: 40013140

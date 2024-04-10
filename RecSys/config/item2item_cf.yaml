@@ -1,0 +1,6 @@
+# Default config
+name: "Item2Item_CF"
+
+# Model type
+model: "Item2ItemCosineSimilarity"
+embedding_type: "IdEmbedding"

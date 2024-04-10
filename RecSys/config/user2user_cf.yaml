@@ -1,0 +1,6 @@
+# Default config
+name: "User2User_CF"
+
+# Model type
+model: "User2UserCosineSimilarity"
+embedding_type: "IdEmbedding"
