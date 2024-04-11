@@ -7,9 +7,9 @@ import numpy as np
 from tqdm import tqdm
 from RecSys.utils.config import get_config, load_everything_from_exp, Experiment
 from RecSys.nn.models.LightGCN import LightGCN_simple
-from RecSys.interpretability.models.grace import GRACE, GRACEAbsolute
-from RecSys.interpretability.models.gnnexplainer import GNNExplainer, sigmoid
-from RecSys.interpretability.models.sensitivity_analysis import SensitivityAnalysis
+from models.grace import GRACE, GRACEAbsolute
+from models.gnnexplainer import GNNExplainer, sigmoid
+from models.sensitivity_analysis import SensitivityAnalysis
 
 
 # Device
@@ -26,7 +26,7 @@ try:
     if not os.path.exists(MODEL_PATH):
         raise ValueError("Model not found")
 except IndexError:
-    print("Usage: python RecSys/interpretability/compute_comp.py <model_dir_path>")
+    print("Usage: python compute_comp.py <model_dir_path>")
     sys.exit(1)
 
 print("#"*20)

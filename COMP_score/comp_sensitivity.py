@@ -7,7 +7,7 @@ import torch
 import torch_sparse
 import numpy as np
 from tqdm import tqdm
-from RecSys.GNN.models.LightGCN import LightGCN_simple
+from RecSys.nn.models.LightGCN import LightGCN_simple
 from RecSys.utils.data.data import RecGraphData
 from RecSys.utils.config import load_everything_from_exp, get_config, Experiment
 
@@ -16,8 +16,8 @@ from torch import Tensor
 os.chdir("../../")
 device = "cuda:0"
 
-LIGHTGCN_RES_PATH = "RecSys/GNN/config/best_config/results.yaml"
-LIGHTGCN_MODEL_PATH = "RecSys/GNN/config/best_config/trained_models/best_val_Rec@25_ne.pt"
+LIGHTGCN_RES_PATH = "RecSys/config/best_config/results.yaml"
+LIGHTGCN_MODEL_PATH = "RecSys/config/best_config/trained_models/best_val_Rec@25_ne.pt"
 
 # Load LightGCN
 exp = get_config(LIGHTGCN_RES_PATH)

@@ -1,18 +1,18 @@
-"""Script to compare user contributions estimated by LightGCN and User2User CF
+"""Script to compare item contributions estimated by LightGCN and Item2Item CF
 
 """
 import torch
 import numpy as np
 from tqdm import tqdm
-from RecSys.GNN.models.LightGCN import LightGCN_simple
-from RecSys.NN.models.similarity import User2UserCosineSimilarity
+from RecSys.nn.models.LightGCN import LightGCN_simple
+from RecSys.nn.models.similarity import Item2ItemCosineSimilarity
 from RecSys.utils.config import get_config, load_everything_from_exp, Experiment
 
 # Device
 device = "cuda:1"
 
-LIGHTGCN_RES_PATH = "RecSys/LightGCN/config/best_config/results.yaml"
-LIGHTGCN_MODEL_PATH = "RecSys/LightGCN/config/best_config/trained_models/best_val_Rec@25_ne.pt"
+LIGHTGCN_RES_PATH = "RecSys/config/best_config/results.yaml"
+LIGHTGCN_MODEL_PATH = "RecSys/config/best_config/trained_models/best_val_Rec@25_ne.pt"
 
 # Load LightGCN
 exp = get_config(LIGHTGCN_RES_PATH)
@@ -31,21 +31,21 @@ gnn = gnn.to(device)
 
 
 # Load User2User
-adj_matrix = User2UserCosineSimilarity.compute_adj_matrix(train_graph).to(device)
-user_sim = User2UserCosineSimilarity.compute_user_similarities(adj_matrix).to(device)
+adj_matrix = Item2ItemCosineSimilarity.compute_adj_matrix(train_graph).to(device)
+item_sim = Item2ItemCosineSimilarity.compute_item_similarities(adj_matrix).to(device)
 
 user_degrees = 1 / (torch.sqrt(torch.sum(adj_matrix, dim=1)) + 1e-8)
 item_degrees = 1 / (torch.sqrt(torch.sum(adj_matrix, dim=0)) + 1e-8)
 
 
 def compute_lightgcn_contrib(u, i, e0, user_degrees, item_degrees, adj_matrix):
-    user_sim = (e0[u].unsqueeze(0) @ e0[:num_users].T).squeeze()
-    contrib = user_sim * adj_matrix[:, i].T * user_degrees * item_degrees[i]
+    item_sim = (e0[i].unsqueeze(0) @ e0[num_users:].T).squeeze()
+    contrib = item_sim * adj_matrix[u] * user_degrees[u] * item_degrees
     return contrib
 
 
-def compute_user2user_contrib(u, i, user_sim):
-    contrib = user_sim[u, :] * adj_matrix[:, i].T
+def compute_user2user_contrib(u, i, item_sim):
+    contrib = item_sim[i] * adj_matrix[u]
     return contrib
 
 
@@ -56,9 +56,8 @@ class RunningAverage():
         self.n = 0
 
     def update(self, x):
-        if not np.isnan(x):
-            self.n += 1
-            self.avg = ((self.n - 1) / self.n) * (self.avg + x / self.n)
+        self.n += 1
+        self.avg = ((self.n - 1) / self.n) * (self.avg + x / self.n)
 
     def __repr__(self):
         return f"{self.name}: {self.avg}"
@@ -107,6 +106,7 @@ overall_avg_bot_10 = RunningAverage("overall average bot 10 accuracy")
 overall_avg_top_25 = RunningAverage("overall average top 25 accuracy")
 overall_avg_bot_25 = RunningAverage("overall average bot 25 accuracy")
 
+
 # Compute the scores
 with torch.no_grad():  # no need to compute gradients
     e0 = gnn.embedding.get_all(train_graph).to(device)
@@ -116,7 +116,7 @@ with torch.no_grad():  # no need to compute gradients
     for u in tqdm(range(num_users)):
         for i in range(num_items):
             gnn_contrib = compute_lightgcn_contrib(u, i, e0, user_degrees, item_degrees, adj_matrix).cpu().numpy()
-            cf_contrib = compute_user2user_contrib(u, i, user_sim).cpu().numpy()
+            cf_contrib = compute_user2user_contrib(u, i, item_sim).cpu().numpy()
             mask = cf_contrib > 0
             gnn_contrib = gnn_contrib[mask]
             cf_contrib = cf_contrib[mask]

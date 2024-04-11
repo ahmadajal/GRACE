@@ -6,7 +6,7 @@ import torch
 from torch import Tensor
 from RecSys.utils.data.data import RecGraphData
 from RecSys.nn.models.LightGCN import LightGCN_simple
-from RecSys.interpretability.models import InterpretableModel
+from models import InterpretableModel
 
 
 class GRACE(InterpretableModel):

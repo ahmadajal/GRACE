@@ -8,7 +8,7 @@ import sys
 import torch
 import numpy as np
 from tqdm import tqdm
-from RecSys.GNN.models.LightGCN import LightGCN_simple
+from RecSys.nn.models.LightGCN import LightGCN_simple
 from RecSys.interpretability.models.interpretable_gnn import TopKUsers_LightGCN, TopKItems_LightGCN
 from RecSys.utils.config import get_config, load_everything_from_exp, Experiment
 
@@ -64,4 +64,4 @@ with torch.no_grad():  # no need to compute gradients
             all_scores[u+uu] = p.cpu().numpy()
 
 # Save the scores
-np.save(f"RecSys/interpretability/scores/top{k}items.npy", all_scores)
+np.save(f"scores/top{k}items.npy", all_scores)

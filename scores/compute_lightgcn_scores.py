@@ -7,7 +7,7 @@ import os
 import sys
 import torch
 import numpy as np
-from RecSys.GNN.models.LightGCN import LightGCN_simple
+from RecSys.nn.models.LightGCN import LightGCN_simple
 from RecSys.utils.config import get_config, load_everything_from_exp, Experiment
 
 
@@ -57,7 +57,7 @@ with torch.no_grad():  # no need to compute gradients
     scores = scores.cpu().numpy()
 
 # Save scores
-np.save("RecSys/interpretability/scores/s0.npy", scores[0])
-np.save("RecSys/interpretability/scores/s01.npy", scores[1])
-np.save("RecSys/interpretability/scores/s10.npy", scores[2])
-np.save("RecSys/interpretability/scores/s1.npy", scores[3])
+np.save("scores/s0.npy", scores[0])
+np.save("scores/s01.npy", scores[1])
+np.save("scores/s10.npy", scores[2])
+np.save("scores/s1.npy", scores[3])

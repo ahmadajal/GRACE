@@ -3,7 +3,7 @@ from torch import Tensor
 import torch
 import torch_sparse
 from RecSys.utils.data.data import RecGraphData
-from RecSys.interpretability.models import InterpretableModel
+from models import InterpretableModel
 from RecSys.nn.models.LightGCN import LightGCN_simple
 
 

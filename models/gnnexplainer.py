@@ -4,7 +4,7 @@ import torch
 import torch_sparse
 import numpy as np
 from RecSys.utils.data.data import RecGraphData
-from RecSys.interpretability.models import InterpretableModel
+from models import InterpretableModel
 
 
 def get_neighbors(node_id: int, graph: RecGraphData) -> Tensor:

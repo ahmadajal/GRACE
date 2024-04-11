@@ -18,10 +18,6 @@ from RecSys.nn.training import CELoss
 from RecSys.nn.models.embeddings import IdEmbedding, IdEmbeddingPlusNameEmbedding, IdEmbeddingPlusNameEmbedding2
 from RecSys.nn.models.embeddings import UsersFeaturesEmbeddingPlusNameEmbdding, UsersFeaturesAndIdEmbeddingPlusNameEmbedding
 from RecSys.nn.models.LightGCN import LightGCN_simple, LightGCN_wo_first_emb
-from RecSys.nn.models.NGCF import NGCF
-from RecSys.nn.models.GAT import GAT
-from RecSys.nn.models.NCF import NCF
-from RecSys.nn.models.MF import MF
 from RecSys.nn.models.similarity import Item2ItemCosineSimilarity, User2UserCosineSimilarity
 from RecSys.nn.models.LightGCN_interpretable import TopKUsersItemsLightGCN
 
@@ -265,15 +261,6 @@ def load_everything_from_exp(exp, device, test=False):
         model = LightGCN_simple(nb_layers=num_layers, embedding=embedding).to(device)
     elif exp["model"] == "LightGCN_wo_first_emb":
         model = LightGCN_wo_first_emb(nb_layers=num_layers, embedding=embedding).to(device)
-    elif exp["model"] == "NGCF":
-        model = NGCF(nb_layers=num_layers, embedding=embedding).to(device)
-    elif exp["model"] == "GAT":
-        model = GAT(nb_layers=num_layers, embedding=embedding).to(device)
-    elif exp["model"] == "NCF":
-        assert isinstance(dropout, float)
-        model = NCF(num_layers=num_layers, embedding=embedding, dropout=dropout).to(device)
-    elif exp["model"] == "MF":
-        model = MF(embedding=embedding).to(device)
     elif exp["model"] == "Item2ItemCosineSimilarity":
         model = Item2ItemCosineSimilarity(graph=graph).to(device)
     elif exp["model"] == "User2UserCosineSimilarity":
@@ -300,7 +287,6 @@ def load_everything_from_exp(exp, device, test=False):
     return datas, model
 
 
-def load_everything_from_exp_cold(exp, device, test=False):
     """ Load everything from an experiment config for a cold start evaluation """
     import RecSys.cold_start.data as cold_start_data
     # Hyperparameters
@@ -404,13 +390,6 @@ def load_everything_from_exp_cold(exp, device, test=False):
         model = LightGCN_simple(nb_layers=num_layers, embedding=embedding).to(device)
     elif exp["model"] == "LightGCN_wo_first_emb":
         model = LightGCN_wo_first_emb(nb_layers=num_layers, embedding=embedding).to(device)
-    elif exp["model"] == "NGCF":
-        model = NGCF(nb_layers=num_layers, embedding=embedding).to(device)
-    elif exp["model"] == "NCF":
-        assert isinstance(dropout, float)
-        model = NCF(num_layers=num_layers, embedding=embedding, dropout=dropout).to(device)
-    elif exp["model"] == "MF":
-        model = MF(embedding=embedding).to(device)
     elif exp["model"] == "Item2ItemCosineSimilarity":
         model = Item2ItemCosineSimilarity(graph=graph).to(device)
     elif exp["model"] == "User2UserCosineSimilarity":

@@ -7,7 +7,7 @@ import os
 import sys
 import torch
 import numpy as np
-from RecSys.NN.models.similarity import Item2ItemCosineSimilarity, User2UserCosineSimilarity
+from RecSys.nn.models.similarity import Item2ItemCosineSimilarity, User2UserCosineSimilarity
 from RecSys.utils.config import get_config, load_everything_from_exp, Experiment
 
 # Device
