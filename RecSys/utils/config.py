@@ -24,7 +24,7 @@ from RecSys.nn.models.LightGCN_interpretable import TopKUsersItemsLightGCN
 
 def get_default_config():
     """Get default configuration."""
-    with open("RecSys/config/default_config.yaml", 'r', encoding="utf-8") as config_file:
+    with open("../config/default_config.yaml", 'r', encoding="utf-8") as config_file:
         config = yaml.load(config_file, Loader=yaml.FullLoader)
     return config
 
@@ -141,22 +141,22 @@ def load_data(dataset, test=False):
         test (bool, optional): If True, the test set is loaded. Defaults to False.
     """
     # Users
-    if os.path.exists(f"data/{dataset}/users.csv"):
-        users_df = pd.read_csv(f"data/{dataset}/users.csv")
+    if os.path.exists(f"../../data/{dataset}/users.csv"):
+        users_df = pd.read_csv(f"../../data/{dataset}/users.csv")
     else:
         users_df = None
 
     # Items
-    if os.path.exists(f"data/{dataset}/items.csv"):
-        items_df = pd.read_csv(f"data/{dataset}/items.csv")
+    if os.path.exists(f"../../data/{dataset}/items.csv"):
+        items_df = pd.read_csv(f"../../data/{dataset}/items.csv")
     else:
         items_df = None
 
     # Interactions
-    inter_df = pd.read_csv(f"data/{dataset}/split/interactions_train.csv")
-    val_inter_df = pd.read_csv(f"data/{dataset}/split/interactions_val.csv")
+    inter_df = pd.read_csv(f"../../data/{dataset}/split/interactions_train.csv")
+    val_inter_df = pd.read_csv(f"../../data/{dataset}/split/interactions_val.csv")
     if test:
-        test_inter_df = pd.read_csv(f"data/{dataset}/split/interactions_test.csv")
+        test_inter_df = pd.read_csv(f"../../data/{dataset}/split/interactions_test.csv")
         inter_df = pd.concat([inter_df, val_inter_df])
         val_inter_df = test_inter_df
     return users_df, items_df, inter_df, val_inter_df
