@@ -67,10 +67,10 @@ models = {
     "SensitivityAnalysis": SensitivityAnalysis(model, 0, 0)
 }
 
-s = np.load("RecSys/interpretability/scores/s0.npy")\
-    + np.load("RecSys/interpretability/scores/s01.npy")\
-    + np.load("RecSys/interpretability/scores/s10.npy")\
-    + np.load("RecSys/interpretability/scores/s1.npy")
+s = np.load("/home/ahmad/GRACE/scores/s0.npy")\
+    + np.load("/home/ahmad/GRACE/scores/s01.npy")\
+    + np.load("/home/ahmad/GRACE/scores/s10.npy")\
+    + np.load("/home/ahmad/GRACE/scores/s1.npy")
 
 comp = {"GRACE": [], "GRACEAbsolute": [], "GNNExplainer": [], "SensitivityAnalysis": []}
 mf = {"GRACE": np.zeros((4, 4)), "GRACEAbsolute": np.zeros((4, 4)), "GNNExplainer": np.zeros((4, 4)), "SensitivityAnalysis": np.zeros((4, 4))}
@@ -125,7 +125,7 @@ for u in tqdm(range(NB_USER)):
         print("\tcurrent COMP:", np.mean(np.array(comp[model_name])))
         print("\tcurrent MF@25:", mf[model_name] / (u+1))
 
-with open("RecSys/interpretability/scores/comp.pkl", "wb") as f:
+with open("/home/ahmad/GRACE/scores/comp.pkl", "wb") as f:
     pickle.dump(comp, f)
-with open("RecSys/interpretability/scores/mf.pkl", "wb") as f:
+with open("/home/ahmad/GRACE/scores/mf.pkl", "wb") as f:
     pickle.dump(mf, f)
