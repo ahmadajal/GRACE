@@ -68,6 +68,7 @@ model = model.to(DEVICE)
 
 grace_model = GRACE(model, train_graph, 10, 10)
 
+# You can select any random user-item pair, preferebly a positive pair from the train/test data.
 u = 0
 i = 1
 new_y, y_wo_top, top_users, top_items = grace_model.one_forward(train_graph, u, i+train_graph.num_users)
