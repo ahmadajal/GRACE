@@ -32,3 +32,43 @@ This folder contains the implementation of the lightGCN model and the user-user 
 
 ### scores
 This folder contains the implemenation of the user and items contributions for the LighGCN and the user2user and item2item CF methods.
+
+## Example: Running GRACE for a user-item pair
+
+You can use the following code snippet to run GRACE on the model prediction for a user-item pair. The explainability is in terms of the top-k most influential users and items for the model prediction. Additionally, the `one_forward` method returns the score of the model when the top users and items are present and when they are not present.
+
+```
+import os
+import torch
+
+from RecSys.utils.config import get_config, load_everything_from_exp, Experiment
+from RecSys.nn.models.LightGCN import LightGCN_simple
+from models.grace import GRACE
+
+# Device
+DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+PATH = <PATH-to-the-trained-model-folder>
+RES_PATH = os.path.join(PATH, "results.yaml")
+exp = get_config(RES_PATH)
+exp = Experiment(exp["Config"])
+MODEL_PATH = os.path.join(PATH, "trained_models", "best_val_Rec@25_e.pt")
+if not os.path.exists(MODEL_PATH):
+    MODEL_PATH = os.path.join(PATH, "trained_models", "best_val_Rec@25_ne.pt")
+
+# Load data
+datas, model = load_everything_from_exp(exp, DEVICE, test=False)
+(train_graph, test_graph, train_ds, test_ds) = datas
+(model, optimizer, scheduler, loss_fn) = model
+assert isinstance(model, LightGCN_simple), "Model must be LightGCN_simple"
+assert model.nb_layers == 1, "Model must be LightGCN with 1 layer"
+model.load_state_dict(torch.load(MODEL_PATH, DEVICE))
+model.eval()
+model = model.to(DEVICE)
+
+grace_model = GRACE(model, train_graph, 10, 10)
+
+u = 0
+i = 1
+new_y, y_wo_top, top_users, top_items = grace_model.one_forward(train_graph, u, i+train_graph.num_users)
+```
