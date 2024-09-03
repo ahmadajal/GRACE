@@ -33,9 +33,9 @@ class GRACE(InterpretableModel):
         """ One forward pass of the model """
         s00 = torch.dot(self.e0[u_id], self.e0[i_id])
 
-        adj_matrix = self.adj_matrix.T[i_id-graph.num_users]
+        adj_matrix_i = self.adj_matrix.T[i_id-graph.num_users]
 
-        s01 = adj_matrix * (self.e0[u_id] @ self.e1[:graph.num_users].T)
+        s01 = adj_matrix_i * (self.e0[u_id] @ self.e1[:graph.num_users].T)
         top_users = torch.argsort(s01, dim=0, descending=True)
         # s01_top = torch.take_along_dim(s01, top_users[:, :self.ku], dim=1)
         # s01_bot = torch.take_along_dim(s01, top_users[:, self.ku:], dim=1)
@@ -47,9 +47,9 @@ class GRACE(InterpretableModel):
         s01_top = s01_top * self.deg[i_id]
         s01_bot = s01_bot * self.deg[i_id]
 
-        adj_matrix = self.adj_matrix[u_id]
+        adj_matrix_u = self.adj_matrix[u_id]
 
-        s10 = adj_matrix * (self.e0[i_id] @ self.e1[graph.num_users:].T)
+        s10 = adj_matrix_u * (self.e0[i_id] @ self.e1[graph.num_users:].T)
         top_items = torch.argsort(s10, dim=0, descending=True)
         # s10_top = torch.take_along_dim(s10, top_items[:, :self.ki], dim=1)
         # s10_bot = torch.take_along_dim(s10, top_items[:, self.ki:], dim=1)
@@ -62,7 +62,19 @@ class GRACE(InterpretableModel):
         s10_top = s10_top * self.deg[u_id]
         s10_bot = s10_bot * self.deg[u_id]
 
-        return 0.25*(s00 + s01_top + s10_top), 0.25*(s00 + s01_bot + s10_bot), top_users, top_items
+        e1_u_top = torch.sum(
+            (adj_matrix_u.view((-1, 1)) * self.e1[graph.num_users:])[top_items[:self.ki]-graph.num_users], 
+            dim=0) * self.deg[u_id]
+        e1_i_top = torch.sum(
+            (adj_matrix_i.view((-1, 1)) * self.e1[:graph.num_users])[top_users[:self.ku]], 
+            dim=0) * self.deg[i_id]
+        e1_u = torch.sum(adj_matrix_u.view((-1, 1)) * self.e0[graph.num_users:], dim=0) * self.deg[u_id] * self.deg[i_id]
+        e1_i = torch.sum(adj_matrix_i.view((-1, 1)) * self.e0[:graph.num_users], dim=0) * self.deg[u_id] * self.deg[i_id]
+        s1_top = torch.dot(e1_u_top, e1_i_top)
+        s1 = torch.dot(e1_u, e1_i)
+        s1_bot = s1 - s1_top
+
+        return 0.25*(s00 + s01_top + s10_top + s1_top), 0.25*(s00 + s01_bot + s10_bot + s1_bot), top_users, top_items
 
     def forward(self, graph, u_idx, i_idx):
         new_scores, scores_wo_top, top_users, top_items = [], [], [], []
