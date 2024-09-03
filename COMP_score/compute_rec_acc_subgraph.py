@@ -13,7 +13,7 @@ from models.sensitivity_analysis import SensitivityAnalysis
 
 
 # Device
-DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 try:
     PATH = sys.argv[1]
@@ -46,8 +46,8 @@ model = model.to(DEVICE)
 test_ds.compute_adj_matrix()
 
 
-NB_USER = 100
-NB_ITEM = 200
+NB_USER = 200
+NB_ITEM = 100
 TOP_KU_RANGE = [25]
 TOP_KI_RANGE = [25]
 
@@ -81,8 +81,8 @@ s = np.load(f"/home/ahmad/GRACE/scores/{exp['dataset']}/s0.npy")\
 recalls = {
     "GRACE": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
         # "GRACEAbsolute": make_empty_list_mat(4, 4),
-        "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
-        "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
+    "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
+    "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
 }
 
 precisions = {
@@ -91,15 +91,20 @@ precisions = {
     "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
     "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
 }
+np.random.seed(exp['seed'])
 selected_users = np.random.choice(train_graph.num_users, NB_USER, replace=False)
 for u_ind, u in enumerate(tqdm(selected_users)):
     u_new_scores = {
         "GRACE": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
         # "GRACEAbsolute": make_empty_list_mat(4, 4),
-        "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
-        "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
+    "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
+    "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
     }
-    for i in tqdm(np.argsort(-s[u])[:NB_ITEM]):
+    selected_items = np.concatenate(
+        (np.argsort(-s[u])[:NB_ITEM], np.argwhere(test_ds.val_adj_matrix[u].numpy()).flatten())
+        )
+    selected_items = np.unique(selected_items)
+    for i in tqdm(selected_items):
         # comp_at_ui = {"GRACE": [], "GRACEAbsolute": [], "GNNExplainer": [], "SensitivityAnalysis": []}
 
         for i_top_ku, top_ku in enumerate(TOP_KU_RANGE):
@@ -134,7 +139,7 @@ for u_ind, u in enumerate(tqdm(selected_users)):
             for j in range(len(TOP_KI_RANGE)):
                 sij = np.array(scores[i][j])
                 sij = np.argsort(-sij)
-                sorted_items = np.take_along_axis(np.argsort(-s[u])[:NB_ITEM], sij, axis=0)
+                sorted_items = np.take_along_axis(selected_items, sij, axis=0)
                 # prec and recall @ 10
                 target = test_ds.val_adj_matrix
                 target = target[u].numpy()
