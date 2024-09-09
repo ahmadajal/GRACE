@@ -64,7 +64,6 @@ def make_empty_list_mat(num_row, num_col):
 
 models = {
     "GRACE": GRACE(model, train_graph, 0, 0),
-    # "GRACEAbsolute": GRACEAbsolute(model, train_graph, 0, 0),
     "GNNExplainer": GNNExplainer(model, 0, 0),
     "SensitivityAnalysis": SensitivityAnalysis(model, 0, 0)
 }
@@ -74,14 +73,9 @@ s = np.load(f"/home/ahmad/GRACE/scores/{exp['dataset']}/s0.npy")\
     + np.load(f"/home/ahmad/GRACE/scores/{exp['dataset']}/s10.npy")\
     + np.load(f"/home/ahmad/GRACE/scores/{exp['dataset']}/s1.npy")
 
-# comp = {"GRACE": [], "GRACEAbsolute": [], "GNNExplainer": [], "SensitivityAnalysis": []}
-# mf = {"GRACE": np.zeros((4, 4)), "GRACEAbsolute": np.zeros((4, 4)), "GNNExplainer": np.zeros((4, 4)), "SensitivityAnalysis": np.zeros((4, 4))}
-# top_users, top_items = sensitivity_analysis_top(train_graph)
-
 recalls = {
     "full_model": [],
     "GRACE": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
-        # "GRACEAbsolute": make_empty_list_mat(4, 4),
     "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
     "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
 }
@@ -89,7 +83,6 @@ recalls = {
 precisions = {
     "full_model": [],
     "GRACE": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
-        # "GRACEAbsolute": make_empty_list_mat(4, 4),
     "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
     "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
 }
@@ -98,14 +91,9 @@ selected_users = np.random.choice(train_graph.num_users, NB_USER, replace=False)
 for u_ind, u in enumerate(tqdm(selected_users)):
     u_new_scores = {
         "GRACE": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
-        # "GRACEAbsolute": make_empty_list_mat(4, 4),
-    "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
-    "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
+        "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
+        "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
     }
-    # selected_items = np.concatenate(
-    #     (np.argsort(-s[u])[:NB_ITEM], np.argwhere(test_ds.val_adj_matrix[u].numpy()).flatten())
-    #     )
-    # selected_items = np.unique(selected_items)
     selected_items = np.argsort(-s[u])[:NB_ITEM]
     for i in tqdm(selected_items):
         # comp_at_ui = {"GRACE": [], "GRACEAbsolute": [], "GNNExplainer": [], "SensitivityAnalysis": []}
@@ -149,7 +137,6 @@ for u_ind, u in enumerate(tqdm(selected_users)):
                 hits = np.sum(np.take_along_axis(target, sorted_items[:10], axis=0))
                 recalls[model_name][i][j].append((hits/np.sum(target)))
                 precisions[model_name][i][j].append(hits/10)
-                # mf[model_name][i][j] += ((sij[:25] < 25).sum() / 25)
     # full model recall and precision
     hits = np.sum(np.take_along_axis(target, selected_items[:10], axis=0))
     recalls["full_model"].append((hits/np.sum(target)))
@@ -161,10 +148,6 @@ for u_ind, u in enumerate(tqdm(selected_users)):
         with open(f"/home/ahmad/GRACE/scores/{exp['dataset']}/interpretable_model_prec.pkl", "wb") as f:
             pickle.dump(precisions, f)
 
-    # for model_name in models:
-    #     print(model_name)
-    #     print("\tcurrent COMP:", np.mean(np.array(comp[model_name])))
-    #     print("\tcurrent MF@25:", mf[model_name] / (u+1))
 
 print("recall full model: ", np.mean(recalls["full_model"]))
 print("precision full model: ", np.mean(precisions["full_model"]))
@@ -176,7 +159,3 @@ with open(f"/home/ahmad/GRACE/scores/{exp['dataset']}/interpretable_model_recall
     pickle.dump(recalls, f)
 with open(f"/home/ahmad/GRACE/scores/{exp['dataset']}/interpretable_model_prec.pkl", "wb") as f:
     pickle.dump(precisions, f)
-# with open("/home/ahmad/GRACE/scores/comp.pkl", "wb") as f:
-#     pickle.dump(comp, f)
-# with open("/home/ahmad/GRACE/scores/mf.pkl", "wb") as f:
-#     pickle.dump(mf, f)
