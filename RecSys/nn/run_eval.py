@@ -11,8 +11,8 @@ from RecSys.metrics import Accuracy_K, Recall_K, NDCG_K, NDCG_K_first_bootstrap,
 from RecSys.utils.config import get_config, load_everything_from_exp, Experiment
 from RecSys.nn.training import test_fn
 
-# Device
-DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
+DEVICE = "cpu"
+# DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 try:
     PATH = sys.argv[1]
@@ -33,7 +33,7 @@ print(exp)
 print("#"*20)
 
 # Load data
-datas, model = load_everything_from_exp(exp, DEVICE, test=True)
+datas, model = load_everything_from_exp(exp, DEVICE, test=False)
 (train_graph, test_graph, train_ds, test_ds) = datas
 (model, optimizer, scheduler, loss_fn) = model
 model.load_state_dict(torch.load(MODEL_PATH, DEVICE))
@@ -68,11 +68,11 @@ metrics = [
     # HITS_K(25, exclude=True),
     # HITS_K(100, exclude=True),
 
-    # Accuracy_K(10, exclude=False),
+    Accuracy_K(10, exclude=False),
     Accuracy_K(25, exclude=False),
     # Accuracy_K(100, exclude=False),
 
-    # Recall_K(10, exclude=False),
+    Recall_K(10, exclude=False),
     Recall_K(25, exclude=False),
     # Recall_K(100, exclude=False),
 
