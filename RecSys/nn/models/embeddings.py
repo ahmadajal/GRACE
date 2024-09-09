@@ -16,7 +16,7 @@ from RecSys.utils.data.data import RecGraphData
 
 
 # Specific to the Tomplay dataset
-PATH_NAME_EMBEDDINGS = "data/tomplay/name_composer_embeddings.npy"
+PATH_NAME_EMBEDDINGS = "/home/ahmad/GRACE/data/tomplay/name_composer_embeddings.npy"
 
 
 class RecSysEmbedding(Module):
