@@ -13,7 +13,7 @@ from models.sensitivity_analysis import SensitivityAnalysis
 
 
 # Device
-DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
 
 try:
     PATH = sys.argv[1]
@@ -46,8 +46,8 @@ model = model.to(DEVICE)
 test_ds.compute_adj_matrix()
 
 
-NB_USER = 200
-NB_ITEM = 100
+NB_USER = 100
+NB_ITEM = 300
 TOP_KU_RANGE = [25]
 TOP_KI_RANGE = [25]
 
@@ -79,6 +79,7 @@ s = np.load(f"/home/ahmad/GRACE/scores/{exp['dataset']}/s0.npy")\
 # top_users, top_items = sensitivity_analysis_top(train_graph)
 
 recalls = {
+    "full_model": [],
     "GRACE": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
         # "GRACEAbsolute": make_empty_list_mat(4, 4),
     "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
@@ -86,6 +87,7 @@ recalls = {
 }
 
 precisions = {
+    "full_model": [],
     "GRACE": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
         # "GRACEAbsolute": make_empty_list_mat(4, 4),
     "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
@@ -100,10 +102,11 @@ for u_ind, u in enumerate(tqdm(selected_users)):
     "GNNExplainer": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE)),
     "SensitivityAnalysis": make_empty_list_mat(len(TOP_KU_RANGE), len(TOP_KI_RANGE))
     }
-    selected_items = np.concatenate(
-        (np.argsort(-s[u])[:NB_ITEM], np.argwhere(test_ds.val_adj_matrix[u].numpy()).flatten())
-        )
-    selected_items = np.unique(selected_items)
+    # selected_items = np.concatenate(
+    #     (np.argsort(-s[u])[:NB_ITEM], np.argwhere(test_ds.val_adj_matrix[u].numpy()).flatten())
+    #     )
+    # selected_items = np.unique(selected_items)
+    selected_items = np.argsort(-s[u])[:NB_ITEM]
     for i in tqdm(selected_items):
         # comp_at_ui = {"GRACE": [], "GRACEAbsolute": [], "GNNExplainer": [], "SensitivityAnalysis": []}
 
@@ -147,6 +150,10 @@ for u_ind, u in enumerate(tqdm(selected_users)):
                 recalls[model_name][i][j].append((hits/np.sum(target)))
                 precisions[model_name][i][j].append(hits/10)
                 # mf[model_name][i][j] += ((sij[:25] < 25).sum() / 25)
+    # full model recall and precision
+    hits = np.sum(np.take_along_axis(target, selected_items[:10], axis=0))
+    recalls["full_model"].append((hits/np.sum(target)))
+    precisions["full_model"].append(hits/10)
     # save the results every 20 users
     if u_ind % 20 == 0:
         with open(f"/home/ahmad/GRACE/scores/{exp['dataset']}/interpretable_model_recall.pkl", "wb") as f:
@@ -159,6 +166,8 @@ for u_ind, u in enumerate(tqdm(selected_users)):
     #     print("\tcurrent COMP:", np.mean(np.array(comp[model_name])))
     #     print("\tcurrent MF@25:", mf[model_name] / (u+1))
 
+print("recall full model: ", np.mean(recalls["full_model"]))
+print("precision full model: ", np.mean(precisions["full_model"]))
 print("recall: ", np.mean(recalls["GRACE"][0][0]))
 print("precision: ", np.mean(precisions["GRACE"][0][0]))
 
