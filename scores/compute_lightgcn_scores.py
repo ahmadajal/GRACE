@@ -33,7 +33,7 @@ print(exp)
 print("#"*20)
 
 # Load data
-datas, model = load_everything_from_exp(exp, device, test=True)
+datas, model = load_everything_from_exp(exp, device, test=False)
 (train_graph, test_graph, train_ds, test_ds) = datas
 (model, optimizer, scheduler, loss_fn) = model
 assert isinstance(model, LightGCN_simple)
@@ -53,11 +53,11 @@ with torch.no_grad():  # no need to compute gradients
     s10 = e1[:num_users] @ e0[num_users:].T
     s1 = e1[:num_users] @ e1[num_users:].T
 
-    scores = torch.stack([s0, s01, s10, s1], dim=0)
-    scores = scores.cpu().numpy()
+    # scores = torch.stack([s0, s01, s10, s1], dim=0)
+    # scores = scores.cpu().numpy()
 
 # Save scores
-np.save("scores/s0.npy", scores[0])
-np.save("scores/s01.npy", scores[1])
-np.save("scores/s10.npy", scores[2])
-np.save("scores/s1.npy", scores[3])
+np.save(f"./{exp['dataset']}/s0.npy", s0.cpu().numpy())
+np.save(f"./{exp['dataset']}/s01.npy", s01.cpu().numpy())
+np.save(f"./{exp['dataset']}/s10.npy", s10.cpu().numpy())
+np.save(f"./{exp['dataset']}/s1.npy", s1.cpu().numpy())
